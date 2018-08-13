@@ -32,7 +32,7 @@ public:
                                                   std::vector<std::pair<int,uint256> >& vSubline);
     bool GetBlockLocation(const uint256& hashBlock,uint256& hashFork,int& nHeight);
     int  GetBlockCount(const uint256& hashFork);
-    bool GetBlockHash(const uint256& hashFork,int nHeight,uint256& hashBlock);
+    bool GetBlockHash(const uint256& hashFork,const int nHeight,uint256& hashBlock);
     bool GetBlock(const uint256& hashBlock,CBlock& block,uint256& hashFork,int& nHeight);
     void GetTxPool(const uint256& hashFork,std::vector<std::pair<uint256,std::size_t> >& vTxPool);
     bool GetTransaction(const uint256& txid,CTransaction& tx,uint256& hashFork,int& nHeight);

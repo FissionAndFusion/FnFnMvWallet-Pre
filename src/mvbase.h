@@ -47,7 +47,7 @@ public:
     IWorldLine() : IWalleveBase("worldline") {}
     virtual void GetForkStatus(std::map<uint256,CForkStatus>& mapForkStatus) = 0;
     virtual bool GetBlockLocation(const uint256& hashBlock,uint256& hashFork,int& nHeight) = 0;
-    virtual bool GetBlockHash(const uint256& hashFork,int nHeight,uint256& hashBlock) = 0;
+    virtual bool GetBlockHash(const uint256& hashFork,const int nHeight,uint256& hashBlock) = 0;
     virtual bool GetLastBlock(const uint256& hashFork,uint256& hashBlock,int& nHeight,int64& nTime) = 0;
     virtual bool GetBlock(const uint256& hashBlock,CBlock& block) = 0;
     virtual bool Exists(const uint256& hashBlock) = 0;
@@ -174,7 +174,7 @@ public:
                                                           std::vector<std::pair<int,uint256> >& vSubline) = 0;
     virtual bool GetBlockLocation(const uint256& hashBlock,uint256& hashFork,int& nHeight) = 0;
     virtual int  GetBlockCount(const uint256& hashFork) = 0;
-    virtual bool GetBlockHash(const uint256& hashFork,int nHeight,uint256& hashBlock) = 0;
+    virtual bool GetBlockHash(const uint256& hashFork,const int nHeight,uint256& hashBlock) = 0;
     virtual bool GetBlock(const uint256& hashBlock,CBlock& block,uint256& hashFork,int& nHeight) = 0;
     virtual void GetTxPool(const uint256& hashFork,std::vector<std::pair<uint256,std::size_t> >& vTxPool) = 0;
     virtual bool GetTransaction(const uint256& txid,CTransaction& tx,uint256& hashFork,int& nHeight) = 0;
