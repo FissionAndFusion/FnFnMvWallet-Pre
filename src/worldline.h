@@ -19,7 +19,7 @@ public:
     ~CWorldLine();
     void GetForkStatus(std::map<uint256,CForkStatus>& mapForkStatus); 
     bool GetBlockLocation(const uint256& hashBlock,uint256& hashFork,int& nHeight);
-    bool GetBlockHash(const uint256& hashFork,int nHeight,uint256& hashBlock);
+    bool GetBlockHash(const uint256& hashFork,const int nHeight,uint256& hashBlock);
     bool GetLastBlock(const uint256& hashFork,uint256& hashBlock,int& nHeight,int64& nTime);
     bool GetBlock(const uint256& hashBlock,CBlock& block);
     bool Exists(const uint256& hashBlock);

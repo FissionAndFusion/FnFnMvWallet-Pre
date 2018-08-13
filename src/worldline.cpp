@@ -82,6 +82,7 @@ void CWorldLine::GetForkStatus(map<uint256,CForkStatus>& mapForkStatus)
 {
     mapForkStatus.clear();
 
+    // list all fork block's index and block height
     multimap<int,CBlockIndex*> mapForkIndex;
     cntrBlock.ListForkIndex(mapForkIndex);
     for (multimap<int,CBlockIndex*>::iterator it = mapForkIndex.begin();it != mapForkIndex.end();++it)
@@ -91,6 +92,7 @@ void CWorldLine::GetForkStatus(map<uint256,CForkStatus>& mapForkStatus)
         uint256 hashFork = pIndex->GetOriginHash();
         uint256 hashParent = pIndex->GetParentHash();
 
+        // insert every fork block into mapForkStatus
         map<uint256,CForkStatus>::iterator mi = mapForkStatus.insert(make_pair(hashFork,CForkStatus(hashFork,hashParent,nForkHeight))).first;
         if (hashParent != 0)
         {
@@ -116,7 +118,7 @@ bool CWorldLine::GetBlockLocation(const uint256& hashBlock,uint256& hashFork,int
     return true;
 }
 
-bool CWorldLine::GetBlockHash(const uint256& hashFork,int nHeight,uint256& hashBlock)
+bool CWorldLine::GetBlockHash(const uint256& hashFork,const int nHeight,uint256& hashBlock)
 {
     CBlockIndex* pIndex = NULL;
     if (!cntrBlock.RetrieveFork(hashFork,&pIndex) || pIndex->GetBlockHeight() < nHeight)

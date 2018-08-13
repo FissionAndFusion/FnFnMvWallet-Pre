@@ -218,7 +218,7 @@ int CService::GetBlockCount(const uint256& hashFork)
     return 0;
 }
 
-bool CService::GetBlockHash(const uint256& hashFork,int nHeight,uint256& hashBlock)
+bool CService::GetBlockHash(const uint256& hashFork,const int nHeight,uint256& hashBlock)
 {
     if (nHeight < 0)
     {

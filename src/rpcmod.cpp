@@ -527,23 +527,28 @@ Value CRPCMod::RPCGetForkGenealogy(const Array& params,bool fHelp)
             "getgenealogy [fork=0]\n"
             "Returns the list of ancestry and subline.");
     }
+
     uint256 fork = GetForkHash(params,0);
     vector<pair<uint256,int> > vAncestry;
     vector<pair<int,uint256> > vSubline;
+
     if (!pService->GetForkGenealogy(fork,vAncestry,vSubline))
     {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Unknown fork");
     }
+
     Object ancestry;
     for (int i = vAncestry.size();i > 0;i--)
     {
         ancestry.push_back(Pair(vAncestry[i - 1].first.GetHex(),vAncestry[i - 1].second));
     }
+
     Object subline;
     for (int i = 0;i > vSubline.size();i++)
     {
         subline.push_back(Pair(vSubline[i].second.GetHex(),vSubline[i].first));
     }
+
     Object ret;
     ret.push_back(Pair("ancestry",ancestry));
     ret.push_back(Pair("subline",subline));
@@ -1194,6 +1199,7 @@ Value CRPCMod::RPCGetBalance(const Array& params,bool fHelp)
             "If [address] is not specified, returns the balance for wallet's each address.\n"
             "If [address] is specified, returns the balance in the address.");
     }
+
     uint256 hashFork = GetForkHash(params,0);
     vector<CDestination> vDest;
     if (params.size() == 2)
@@ -1209,6 +1215,7 @@ Value CRPCMod::RPCGetBalance(const Array& params,bool fHelp)
     {
         ListDestination(vDest);
     }
+
     Object ret;
     BOOST_FOREACH(const CDestination& dest,vDest)
     {
