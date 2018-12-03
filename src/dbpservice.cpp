@@ -887,6 +887,8 @@ bool CDbpService::HandleEvent(CMvEventDbpRegisterForkID& event)
 
 void CDbpService::SetIsForkNode(bool isForkNode)
 {
+    fIsForkNode = isForkNode;
+    
     int nNonce = 0;
     uint32_t ramdom32 = CDbpUtils::RandomBits();
     std::memcpy(&nNonce, &ramdom32, 4);
