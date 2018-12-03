@@ -15,6 +15,7 @@
 #include <queue>
 
 #include "dbputils.h"
+#include "dbpservice.h"
 
 using namespace walleve;
 
@@ -207,7 +208,7 @@ protected:
     bool fIsForkNode;
 
 private:
-    IIOModule* pDbpService;
+    IDbpService* pDbpService;
 };
 
 } // namespace multiverse

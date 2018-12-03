@@ -8,6 +8,7 @@
 #include "mvproto.h"
 #include "forkpeerevent.h"
 #include "mvpeernet.h"
+#include "dbpservice.h"
 
 namespace multiverse
 {
@@ -46,7 +47,7 @@ protected:
     }
 
 protected:
-    walleve::IIOModule* pDbpService;
+    IDbpService* pDbpService;
     std::map<uint256, std::pair<int, uint256>> mapForkNodeHeight;          //ForkID-(LastHeight-BlockHash) for offspring node
     std::map<uint256, std::pair<int, uint256>> mapForkNodeHeightCurrent;   //ForkID-(LastHeight-BlockHash) for current node
     SUPER_NODE_TYPE typeNode;

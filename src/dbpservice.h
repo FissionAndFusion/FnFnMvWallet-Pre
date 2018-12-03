@@ -22,8 +22,16 @@ namespace multiverse
 
 using namespace network;
 
-class CDbpService : public walleve::IIOModule, virtual public CDBPEventListener, 
+class IDbpService  :  public walleve::IIOModule, virtual public CDBPEventListener, 
                     virtual public CMvDBPEventListener, virtual public CFkNodeEventListener
+{
+public:
+    IDbpService() : walleve::IIOModule("dbpservice") {}
+
+    virtual void SetIsForkNode(bool isForkNode) = 0;
+};
+
+class CDbpService : public IDbpService
 {
 public:
     CDbpService();
@@ -41,8 +49,6 @@ public:
     bool HandleEvent(CMvEventDbpRegisterForkID& event) override;
     // client post event update fork state
     bool HandleEvent(CMvEventDbpUpdateForkState& event) override;
-    // client post event is forknode
-    bool HandleEvent(CMvEventDbpIsForkNode& event) override;
 
     // notify add msg(block tx ...) to event handler
     bool HandleEvent(CMvEventDbpUpdateNewBlock& event) override;
@@ -51,6 +57,8 @@ public:
     // notify block and tx from virtual peer net
     bool HandleEvent(CFkEventNodeBlockArrive& event) override;
     bool HandleEvent(CFkEventNodeTxArrive& event) override;
+
+    void SetIsForkNode(bool isForkNode) override;
 
 protected:
     bool WalleveHandleInitialize() override;

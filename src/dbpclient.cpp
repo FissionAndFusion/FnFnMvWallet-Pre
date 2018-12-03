@@ -940,16 +940,12 @@ void CMvDbpClient::EnterLoop()
         bool fEnableSSL = (*it).second.optSSL.fEnable;
         if(it->first.address().is_loopback())
         {
-            CMvEventDbpIsForkNode* pEvent = new CMvEventDbpIsForkNode("");
-            pEvent->data.IsForkNode = false;
-            pDbpService->PostEvent(pEvent);
+            pDbpService->SetIsForkNode(false);
             continue;
         }
         else
         {
-            CMvEventDbpIsForkNode* pEvent = new CMvEventDbpIsForkNode("");
-            pEvent->data.IsForkNode = true;
-            pDbpService->PostEvent(pEvent);
+            pDbpService->SetIsForkNode(true);
             
             if(!StartConnection(it->first,DBPCLIENT_CONNECT_TIMEOUT,fEnableSSL,it->second.optSSL))
             {

@@ -10,6 +10,7 @@
 #include "forkpeerevent.h"
 #include "mvbase.h"
 #include "schedule.h"
+#include "dbpservice.h"
 
 namespace multiverse
 {
@@ -114,7 +115,7 @@ protected:
     ITxPool* pTxPool;
     IDispatcher* pDispatcher;
     IService *pService;
-    IIOModule *pDbpService;
+    IDbpService *pDbpService;
     mutable boost::shared_mutex rwNetPeer; 
     mutable boost::recursive_mutex mtxSched; 
     std::map<uint256,CSchedule> mapSched; 

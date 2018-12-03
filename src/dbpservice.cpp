@@ -12,7 +12,6 @@
 using namespace multiverse;
 
 CDbpService::CDbpService()
-    : walleve::IIOModule("dbpservice")
 {
     pService = NULL;
     pCoreProtocol = NULL;
@@ -886,24 +885,20 @@ bool CDbpService::HandleEvent(CMvEventDbpRegisterForkID& event)
     return true;
 }
 
-bool CDbpService::HandleEvent(CMvEventDbpIsForkNode& event)
+void CDbpService::SetIsForkNode(bool isForkNode)
 {
-    fIsForkNode = event.data.IsForkNode;
-
     int nNonce = 0;
     uint32_t ramdom32 = CDbpUtils::RandomBits();
     std::memcpy(&nNonce, &ramdom32, 4);
     CFkEventNodeIsForkNode eventIsForkNode(nNonce);
-    eventIsForkNode.fIsForkNode = fIsForkNode;
+    eventIsForkNode.fIsForkNode = isForkNode;
     pVirtualPeerNet->DispatchEvent(&eventIsForkNode);
 
-    pNetChannel->SetForkFilterInfo(fIsForkNode, mapThisNodeForkStates);
+    pNetChannel->SetForkFilterInfo(isForkNode, mapThisNodeForkStates);
 
     CMvEventDbpIsForkNode eventDbpIsForkNode("");
-    eventDbpIsForkNode.data.IsForkNode = fIsForkNode;
+    eventDbpIsForkNode.data.IsForkNode = isForkNode;
     pDbpClient->DispatchEvent(&eventDbpIsForkNode);
-
-    return true;
 }
 
 bool CDbpService::HandleEvent(CMvEventDbpUpdateForkState& event)
