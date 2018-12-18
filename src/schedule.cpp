@@ -319,6 +319,11 @@ bool CSchedule::ScheduleTxInv(uint64 nPeerNonce,vector<network::CInv>& vInv,size
     return true;
 }
 
+const map<uint64,CInvPeer>& CSchedule::GetPeers()
+{
+    return mapPeer;
+}
+
 void CSchedule::RemoveOrphan(const network::CInv& inv)
 {
     if (inv.nType == network::CInv::MSG_TX)

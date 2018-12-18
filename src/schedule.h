@@ -26,11 +26,11 @@ class CInvPeer
         std::set<uint256> setAssigned;
     };
 public:
-    bool Empty(uint32 type)
+    bool Empty(uint32 type) const
     {
         return GetKnownList(type).empty(); 
     }
-    std::size_t GetCount(uint32 type)
+    std::size_t GetCount(uint32 type) const
     { 
         return GetKnownList(type).size(); 
     }
@@ -39,6 +39,14 @@ public:
         return invKnown[type - network::CInv::MSG_TX].listKnown;
     }
     std::set<uint256>& GetAssigned(uint32 type)
+    {
+        return invKnown[type - network::CInv::MSG_TX].setAssigned;
+    }
+    const std::list<uint256>& GetKnownList(uint32 type) const
+    {
+        return invKnown[type - network::CInv::MSG_TX].listKnown;
+    }
+    const std::set<uint256>& GetAssigned(uint32 type) const
     {
         return invKnown[type - network::CInv::MSG_TX].setAssigned;
     }
@@ -125,6 +133,7 @@ public:
     void InvalidateTx(const uint256& txid,std::set<uint64>& setMisbehavePeer);
     bool ScheduleBlockInv(uint64 nPeerNonce,std::vector<network::CInv>& vInv,std::size_t nMaxCount,bool& fMissingPrev,bool& fEmpty);
     bool ScheduleTxInv(uint64 nPeerNonce,std::vector<network::CInv>& vInv,std::size_t nMaxCount);
+    const std::map<uint64,CInvPeer>& GetPeers();
 protected:
     void RemoveOrphan(const network::CInv& inv);
     bool ScheduleKnownInv(uint64 nPeerNonce,CInvPeer& peer,uint32 type,

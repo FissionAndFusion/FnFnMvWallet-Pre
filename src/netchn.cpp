@@ -828,23 +828,43 @@ void CNetChannel::PushTxTimerFunc(uint32 nTimerId)
 
 void CNetChannel::PushTxInv(const uint256& hashFork)
 {
-    vector<uint256> vTxPool;
-    pTxPool->ListTx(hashFork,vTxPool);
-    if (!vTxPool.empty() && !mapPeer.empty())
+    map<uint256,CSchedule>::iterator it = mapSched.find(hashFork);
+    if (it == mapSched.end())
     {
-        boost::shared_lock<boost::shared_mutex> rlock(rwNetPeer);    
-        for (map<uint64,CNetChannelPeer>::iterator it = mapPeer.begin();it != mapPeer.end();++it)
+        return;
+    }
+    try
+    {
+        CSchedule& sched = GetSchedule(hashFork);
+        const map<uint64,CInvPeer>& mapSchedPeers = sched.GetPeers();
+        for (map<uint64,CInvPeer>::const_iterator it = mapSchedPeers.begin(); it != mapSchedPeers.end(); it++)
         {
-            CNetChannelPeer& peer = (*it).second;
-            if (peer.IsSubscribed(hashFork))
+            if (!it->second.Empty(network::CInv::MSG_TX) || !it->second.Empty(network::CInv::MSG_BLOCK))
             {
-                network::CMvEventPeerInv eventInv((*it).first,hashFork);
-                peer.MakeTxInv(hashFork,vTxPool,eventInv.data,network::CInv::MAX_INV_COUNT);
-                if (!eventInv.data.empty())
+                return;
+            }
+        }
+
+        vector<uint256> vTxPool;
+        pTxPool->ListTx(hashFork,vTxPool);
+        if (!vTxPool.empty() && !mapPeer.empty())
+        {
+            boost::shared_lock<boost::shared_mutex> rlock(rwNetPeer);    
+            for (map<uint64,CNetChannelPeer>::iterator it = mapPeer.begin();it != mapPeer.end();++it)
+            {
+                CNetChannelPeer& peer = (*it).second;
+                if (peer.IsSubscribed(hashFork) && (mapSchedPeers.find(it->first) != mapSchedPeers.end()))
                 {
-                    pPeerNet->DispatchEvent(&eventInv);
+                    network::CMvEventPeerInv eventInv((*it).first,hashFork);
+                    peer.MakeTxInv(hashFork,vTxPool,eventInv.data,network::CInv::MAX_INV_COUNT);
+                    if (!eventInv.data.empty())
+                    {
+                        pPeerNet->DispatchEvent(&eventInv);
+                    }
                 }
             }
         }
     }
+    catch (...)
+    {}
 }
