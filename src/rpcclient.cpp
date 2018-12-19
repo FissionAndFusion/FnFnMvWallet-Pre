@@ -163,7 +163,8 @@ bool CRPCClient::HandleEvent(CWalleveEventHttpGetRsp& event)
     }
     catch (exception& e)
     {
-        StdError(__PRETTY_FUNCTION__, e.what());
+        /*StdError(__PRETTY_FUNCTION__, e.what());*/
+        cerr << "CRPCClient::HandleEvent: " << e.what() << endl;
     }
 
     ioComplt.Completed(false);

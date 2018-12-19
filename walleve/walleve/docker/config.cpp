@@ -84,7 +84,8 @@ bool CWalleveConfig::Load(int argc,char *argv[],const fs::path& pathDefault,cons
     }
     catch (exception& e)
     {
-        StdError(__PRETTY_FUNCTION__, e.what());
+        /*StdError(__PRETTY_FUNCTION__, e.what());*/
+        cerr << "CWalleveConfig::Load: " << e.what() << endl;
         return false;
     }
     return true;

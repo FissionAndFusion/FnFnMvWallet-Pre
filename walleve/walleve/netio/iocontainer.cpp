@@ -131,14 +131,27 @@ bool CIOInBound::Invoke(const tcp::endpoint& epListen,size_t nMaxConnection,cons
         BuildWhiteList(vAllowMask);
         epService = epListen;
 
-        if (!PrepareClient(nMaxConnection + 1))
+        /*One listen, one idle*/
+        if (!PrepareClient(nMaxConnection + 2))
         {
             return false;
         }
 
         acceptorService.open(epListen.protocol());
         acceptorService.set_option(tcp::acceptor::reuse_address(true));
-        acceptorService.bind(epListen);
+
+        //acceptorService.bind(epListen);
+	    boost::system::error_code ec;
+        acceptorService.bind(epListen, ec);
+        if (ec)
+        {
+            cerr << "IOInBound tcp bind fail, addr: " 
+            << epListen.address().to_string() << ":" 
+            << epListen.port() 
+            << ", cause: " << ec.message() << endl;
+            return false;
+        }
+
         acceptorService.listen();
 
         CIOClient *pClient = ClientAlloc();
@@ -223,7 +236,6 @@ void CIOInBound::HandleAccept(CIOClient *pClient, const boost::system::error_cod
                 + ". Accepted: " + to_string(pIOProc->ClientAccepted(acceptorService.local_endpoint(),pClient))).c_str());
             pClient->Close();
         }
-        
         pClient = ClientAlloc();
         pClient->Accept(acceptorService,
                         boost::bind(&CIOInBound::HandleAccept,this,pClient,_1));
