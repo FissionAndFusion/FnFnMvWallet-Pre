@@ -209,19 +209,24 @@ bool CSocketClient::IsSocketOpen()
 CSSLClient::CSSLClient(CIOContainer* pContainerIn, boost::asio::io_service& ioserivce,
                        boost::asio::ssl::context& context,
                        const string& strVerifyHost)
-    : CIOClient(pContainerIn), sslClient(ioserivce, context)
+    : CIOClient(pContainerIn), sslClient(ioserivce, context), sVerifyHost(strVerifyHost)
 {
-    if (!strVerifyHost.empty())
-    {
+    //if (!strVerifyHost.empty())
+    //{
         //        sslClient.set_verify_callback(boost::bind(&CSSLClient::VerifyCertificate,this,
         //                                                   strVerifyHost,_1,_2));
-        sslClient.set_verify_callback(boost::asio::ssl::rfc2818_verification(strVerifyHost));
-    }
+        //sslClient.set_verify_callback(boost::asio::ssl::rfc2818_verification(strVerifyHost));
+    //}
 }
 
 CSSLClient::~CSSLClient()
 {
     CloseSocket();
+}
+
+void CSSLClient::SetVerifyPeer(bool bIfVerify)
+{
+    bIfVerifyPeer = bIfVerify;
 }
 
 void CSSLClient::AsyncAccept(tcp::acceptor& acceptor, CallBackConn fnAccepted)
@@ -289,14 +294,21 @@ bool CSSLClient::IsSocketOpen()
     return sslClient.lowest_layer().is_open();
 }
 
+
 void CSSLClient::HandleConnected(CallBackConn fnHandshaked,
                                  boost::asio::ssl::stream_base::handshake_type type,
                                  const boost::system::error_code& err)
 {
     if (!err)
     {
-        sslClient.async_handshake(type, boost::bind(&CSSLClient::HandleConnCompleted, this, fnHandshaked,
-                                                    boost::asio::placeholders::error));
+        if (bIfVerifyPeer)
+        {
+            sslClient.set_verify_mode(boost::asio::ssl::verify_peer);
+            sslClient.set_verify_callback(boost::bind(&CSSLClient::VerifyCertificate, this, _1, _2));
+        }
+        
+        sslClient.async_handshake(type, boost::bind(&CSSLClient::HandleConnCompleted, this, 
+            fnHandshaked, boost::asio::placeholders::error));
     }
     else
     {
@@ -304,7 +316,25 @@ void CSSLClient::HandleConnected(CallBackConn fnHandshaked,
     }
 }
 
-bool CSSLClient::VerifyCertificate(const string& strVerifyHost, bool fPreverified,
+bool CSSLClient::VerifyCertificate(bool preverified,
+      boost::asio::ssl::verify_context& ctx)
+{
+    /*char subject_name[256];
+    X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+    X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+    std::cout << "Verify: " << (preverified ? "success" : "fail") << ", info: " << subject_name << "\n";*/
+
+    if (preverified)
+        //walleve::StdDebug("SSL", "Ssl verify success.");
+        cout << "Ssl verify success." << endl;
+    else
+        //walleve::StdDebug("SSL", "Ssl verify fail.");
+        cout << "Ssl verify fail." << endl;
+
+    return preverified;
+}
+
+/*bool CSSLClient::VerifyCertificate(const string& strVerifyHost, bool fPreverified,
                                    boost::asio::ssl::verify_context& ctx)
 {
     char subject_name[256];
@@ -349,4 +379,4 @@ bool CSSLClient::VerifyCertificate(const string& strVerifyHost, bool fPreverifie
         break;
     }
     return fPreverified;
-}
+}*/

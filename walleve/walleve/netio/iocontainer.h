@@ -98,6 +98,7 @@ public:
               strPathCert(strPathCertIn),strPathPK(strPathPKIn),
               strCiphers(strCiphersIn),strPeerName(strPeerNameIn)
     {
+        std::cout << "Verify host name: " << strPeerNameIn << std::endl;
     }
     bool SetupSSLContext(boost::asio::ssl::context& ctx) const;
 public:

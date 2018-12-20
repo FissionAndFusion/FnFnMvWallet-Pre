@@ -43,19 +43,28 @@ bool CMvRPCBasicConfig::PostLoad()
         nRPCPort = (unsigned short)nRPCPortInt;
     }
 
-    if (!fs::path(strRPCCAFile).is_complete())
+    if (!strRPCCAFile.empty())
     {
-        strRPCCAFile = (pathRoot / strRPCCAFile).string();
+        if (!fs::path(strRPCCAFile).is_complete())
+        {
+            strRPCCAFile = (pathRoot / strRPCCAFile).string();
+        }
     }
 
-    if (!fs::path(strRPCCertFile).is_complete())
+    if (!strRPCCertFile.empty())
     {
-        strRPCCertFile = (pathRoot / strRPCCertFile).string();
+        if (!fs::path(strRPCCertFile).is_complete())
+        {
+            strRPCCertFile = (pathRoot / strRPCCertFile).string();
+        }
     }
 
-    if (!fs::path(strRPCPKFile).is_complete())
+    if (!strRPCPKFile.empty())
     {
-        strRPCPKFile = (pathRoot / strRPCPKFile).string();
+        if (!fs::path(strRPCPKFile).is_complete())
+        {
+            strRPCPKFile = (pathRoot / strRPCPKFile).string();
+        }
     }
 
     return true;

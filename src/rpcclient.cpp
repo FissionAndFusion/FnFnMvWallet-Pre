@@ -185,7 +185,7 @@ bool CRPCClient::GetResponse(uint64 nNonce, const std::string& content)
     if (WalleveConfig()->fRPCSSLEnable)
     {
         httpGet.strProtocol = "https";
-        httpGet.fVerifyPeer = true;
+        httpGet.fVerifyPeer = WalleveConfig()->fRPCSSLVerify; //true;
         httpGet.strPathCA   = WalleveConfig()->strRPCCAFile;
         httpGet.strPathCert = WalleveConfig()->strRPCCertFile;
         httpGet.strPathPK   = WalleveConfig()->strRPCPKFile;

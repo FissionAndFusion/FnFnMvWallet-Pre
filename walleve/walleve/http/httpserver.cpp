@@ -199,6 +199,7 @@ bool CHttpServer::CreateProfile(const CHttpHostConfig& confHost)
             delete profile.pSSLContext;
             return false;
         }
+        profile.bSslVerifyPeer = confHost.optSSL.fVerifyPeer;
     }
 
     profile.nMaxConnections = confHost.nMaxConnections;
@@ -272,7 +273,9 @@ CIOClient* CHttpServer::CreateIOClient(CIOContainer *pContainer)
     it = mapProfile.find(pContainer->GetServiceEndpoint());
     if (it != mapProfile.end() && (*it).second.pSSLContext != NULL)
     {
-        return new CSSLClient(pContainer,GetIoService(),*(*it).second.pSSLContext);
+        CSSLClient *pSslClient = new CSSLClient(pContainer,GetIoService(),*(*it).second.pSSLContext);
+        pSslClient->SetVerifyPeer((*it).second.bSslVerifyPeer);
+        return pSslClient;
     }
     return CIOProc::CreateIOClient(pContainer);
 }

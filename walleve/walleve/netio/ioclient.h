@@ -85,6 +85,8 @@ public:
                const std::string& strVerifyHost = "");
     ~CSSLClient();
 
+    void SetVerifyPeer(bool bIfVerify);
+
 protected:
     void AsyncAccept(boost::asio::ip::tcp::acceptor& acceptor, CallBackConn fnAccepted);
     void AsyncConnect(const boost::asio::ip::tcp::endpoint& epRemote, CallBackConn fnConnected);
@@ -98,11 +100,14 @@ protected:
     void HandleConnected(CallBackConn fnHandshaked,
                          boost::asio::ssl::stream_base::handshake_type type,
                          const boost::system::error_code& err);
-    bool VerifyCertificate(const std::string& strVerifyHost, bool fPreverified,
-                           boost::asio::ssl::verify_context& ctx);
+    bool VerifyCertificate(bool preverified, boost::asio::ssl::verify_context& ctx);
+    /*bool VerifyCertificate(const std::string& strVerifyHost, bool fPreverified,
+                           boost::asio::ssl::verify_context& ctx);*/
 
 protected:
     boost::asio::ssl::stream<boost::asio::ip::tcp::socket> sslClient;
+    bool bIfVerifyPeer;
+    std::string sVerifyHost;
 };
 
 } // namespace walleve

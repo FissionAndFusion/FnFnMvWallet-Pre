@@ -127,7 +127,7 @@
             "name": "strRPCCAFile",
             "type": "string",
             "opt": "rpccafile",
-            "default": "ca.crt",
+            "default": "",
             "format": "-rpccafile=<file.cert>",
             "desc": "SSL CA file name (default ca.crt)"
         },
@@ -135,7 +135,7 @@
             "name": "strRPCCertFile",
             "type": "string",
             "opt": "rpccertfile",
-            "default": "server.crt",
+            "default": "",
             "format": "-rpccertfile=<file.cert>",
             "desc": "Server certificate file (default: server.cert)"
         },
@@ -143,7 +143,7 @@
             "name": "strRPCPKFile",
             "type": "string",
             "opt": "rpcpkfile",
-            "default": "server.key",
+            "default": "",
             "format": "-rpcpkfile=<file.pem>",
             "desc": "Server private key (default: server.pem)"
         },

@@ -339,6 +339,8 @@ bool CIOSSLOption::SetupSSLContext(boost::asio::ssl::context& ctx) const
         ctx.set_options(boost::asio::ssl::context::no_sslv2);
         if (fVerifyPeer)
         {
+            walleve::StdDebug("SSL", (string("Server verify_peer: ")+strPathCA).c_str());
+
             ctx.set_verify_mode(boost::asio::ssl::verify_peer 
                                     | boost::asio::ssl::verify_fail_if_no_peer_cert);
             if (strPathCA.empty())
@@ -352,15 +354,20 @@ bool CIOSSLOption::SetupSSLContext(boost::asio::ssl::context& ctx) const
         }
         else
         {
+            walleve::StdDebug("SSL", "Server verify_none.");
             ctx.set_verify_mode(boost::asio::ssl::verify_none);
         }
         if (!strPathCert.empty() && !strPathPK.empty())
         {
+            walleve::StdDebug("SSL", (string("Server use_certificate_chain_file: ")+strPathCert).c_str());
             ctx.use_certificate_chain_file(strPathCert);
+
+            walleve::StdDebug("SSL", (string("Server use_private_key_file: ")+strPathPK).c_str());
             ctx.use_private_key_file(strPathPK,boost::asio::ssl::context::pem);
         }
         if (!strCiphers.empty())
         {
+            walleve::StdDebug("SSL", (string("Server SSL_CTX_set_cipher_list: ")+strCiphers).c_str());
             SSL_CTX_set_cipher_list(ctx.native_handle(),strCiphers.c_str());
         }
     }
@@ -402,6 +409,9 @@ CIOClient* CIOSSLOutBound::ClientAlloc(const CIOSSLOption& optSSL)
             ctx.set_options(boost::asio::ssl::context::no_sslv2);
             if (optSSL.fVerifyPeer)
             {
+                //walleve::StdDebug("SSL", (string("Client verify_peer: ")+optSSL.strPathCA).c_str());
+                cout << "Client verify_peer: " << optSSL.strPathCA << endl;
+
                 ctx.set_verify_mode(boost::asio::ssl::verify_peer 
                                     | boost::asio::ssl::verify_fail_if_no_peer_cert);
                 if (optSSL.strPathCA.empty())
@@ -415,14 +425,26 @@ CIOClient* CIOSSLOutBound::ClientAlloc(const CIOSSLOption& optSSL)
             }
             else
             {
+                //walleve::StdDebug("SSL", "Client verify_none.");
+                cout << "Client verify_none." << endl;
+
                 ctx.set_verify_mode(boost::asio::ssl::verify_none);
             }
             if (!optSSL.strPathCert.empty() && !optSSL.strPathPK.empty())
             {
+                //walleve::StdDebug("SSL", (string("Client use_certificate_chain_file: ")+optSSL.strPathCert).c_str());
+                cout << "Client use_certificate_chain_file: " << optSSL.strPathCert << endl;
                 ctx.use_certificate_chain_file(optSSL.strPathCert);
+
+                //walleve::StdDebug("SSL", (string("Client use_private_key_file: ")+optSSL.strPathPK).c_str());
+                cout << "Client use_private_key_file: " << optSSL.strPathPK << endl;
                 ctx.use_private_key_file(optSSL.strPathPK,boost::asio::ssl::context::pem);
             }
-            return new CSSLClient(this,ioService,ctx,optSSL.fVerifyPeer ? optSSL.strPeerName : ""); 
+
+            CSSLClient *pSslClient = new CSSLClient(this,ioService,ctx,optSSL.fVerifyPeer ? optSSL.strPeerName : ""); 
+            pSslClient->SetVerifyPeer(optSSL.fVerifyPeer);
+
+            return pSslClient;
         }
         catch (exception& e)
         {
