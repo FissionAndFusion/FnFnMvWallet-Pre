@@ -775,12 +775,12 @@ bool CWallet::ResumeWalletTx(int nCheckDepth)
             vFork.push_back((*mi).second);
         }
 
-        auto it = mapForkStatus.find(hashFork);
-        if(it == mapForkStatus.end())
+        auto itFork = mapForkStatus.find(hashFork);
+        if(itFork == mapForkStatus.end())
         {
             continue;
         }
-        const auto& status = it->second;
+        const auto& status = itFork->second;
         int nDepth = nCheckDepth;
         if(nDepth > status.nLastBlockHeight || nDepth <= 0)
         {
