@@ -178,7 +178,11 @@ bool CWallet::WalleveHandleInvoke()
     if (!InspectWalletTx(StorageConfig()->nCheckDepth))
     {
         WalleveLog("Failed to inspect wallet transactions\n");
-        return false;
+        if(!ResumeWalletTx(StorageConfig()->nCheckDepth))
+        {
+            WalleveLog("Failed to resume wallet transactions\n");
+            return false;
+        }
     }
 
     return true;
@@ -729,6 +733,64 @@ bool CWallet::InspectWalletTx(int nCheckDepth)
     if(!dbWallet.WalkThroughTx(walker) && !walker.fRes)
     {
         return false;
+    }
+
+    return true;
+}
+
+bool CWallet::ResumeWalletTx(int nCheckDepth)
+{
+    boost::unique_lock<boost::shared_mutex> wlock(rwWalletTx);
+
+    if (!ClearTx())
+    {
+        return false;
+    }
+    set<CDestination> setDest;
+    GetDestinations(setDest);
+
+    CWalletTxFilter txFilter(this, setDest);
+
+    vector<uint256> vFork;
+    vFork.reserve(mapFork.size());
+
+    vFork.push_back(pCoreProtocol->GetGenesisBlockHash());
+
+    map<uint256, CForkStatus> mapForkStatus;
+    pWorldLine->GetForkStatus(mapForkStatus);
+
+    for (int i = 0; i < vFork.size(); i++)
+    {
+        const uint256& hashFork = vFork[i];
+
+        map<uint256, CWalletFork>::iterator it = mapFork.find(hashFork);
+        if (it == mapFork.end())
+        {
+            return false;
+        }
+
+        for (multimap<int, uint256>::iterator mi = (*it).second.mapSubline.begin();
+             mi != (*it).second.mapSubline.end(); ++mi)
+        {
+            vFork.push_back((*mi).second);
+        }
+
+        auto it = mapForkStatus.find(hashFork);
+        if(it == mapForkStatus.end())
+        {
+            continue;
+        }
+        const auto& status = it->second;
+        int nDepth = nCheckDepth;
+        if(nDepth > status.nLastBlockHeight || nDepth <= 0)
+        {
+            nDepth = status.nLastBlockHeight;
+        }
+
+        if (!pWorldLine->FilterTx(hashFork, nDepth, txFilter) || !pTxPool->FilterTx(hashFork, txFilter))
+        {
+            return false;
+        }
     }
 
     return true;
