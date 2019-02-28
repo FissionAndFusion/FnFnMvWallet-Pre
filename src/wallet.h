@@ -170,7 +170,7 @@ protected:
     void RemoveWalletTx(std::shared_ptr<CWalletTx>& spWalletTx,const uint256& hashFork);
     bool SyncWalletTx(CTxFilter& txFilter);
     bool InspectWalletTx(int nCheckDepth);
-    bool ResumeWalletTx(int nCheckDepth);
+    bool ReconstructWalletTx(int nCheckDepth);
 protected:
     storage::CWalletDB dbWallet;
     ICoreProtocol* pCoreProtocol;

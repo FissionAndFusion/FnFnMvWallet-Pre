@@ -178,7 +178,7 @@ bool CWallet::WalleveHandleInvoke()
     if (!InspectWalletTx(StorageConfig()->nCheckDepth))
     {
         WalleveLog("Failed to inspect wallet transactions\n");
-        if(!ResumeWalletTx(StorageConfig()->nCheckDepth))
+        if(!ReconstructWalletTx(StorageConfig()->nCheckDepth))
         {
             WalleveLog("Failed to resume wallet transactions\n");
             return false;
@@ -738,7 +738,7 @@ bool CWallet::InspectWalletTx(int nCheckDepth)
     return true;
 }
 
-bool CWallet::ResumeWalletTx(int nCheckDepth)
+bool CWallet::ReconstructWalletTx(int nCheckDepth)
 {
     boost::unique_lock<boost::shared_mutex> wlock(rwWalletTx);
 
