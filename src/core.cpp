@@ -288,6 +288,10 @@ MvErr CMvCoreProtocol::VerifyProofOfWork(const CBlock& block, const CBlockIndex*
     {
         return MV_ERR_BLOCK_PROOF_OF_WORK_INVALID;
     }
+    if (proof.destMint != block.txMint.sendTo)
+    {
+        return MV_ERR_BLOCK_PROOF_OF_WORK_INVALID;
+    }
 
     uint256 hashTarget = (~uint256(uint64(0)) >> GetProofOfWorkRunTimeBits(nBits,block.GetBlockTime(),pIndexPrev->GetBlockTime()));
 

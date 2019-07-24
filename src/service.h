@@ -72,7 +72,7 @@ public:
     bool SynchronizeWalletTx(const CDestination& destNew) override;
     bool ResynchronizeWalletTx() override;
     /* Mint */
-    bool GetWork(std::vector<unsigned char>& vchWorkData,uint256& hashPrev,uint32& nPrevTime,int& nAlgo,int& nBits) override;
+    bool GetWork(std::vector<unsigned char>& vchWorkData, uint256& hashPrev, uint32& nPrevTime, int& nAlgo, int& nBits, CTemplateMintPtr& templMint) override;
     MvErr SubmitWork(const std::vector<unsigned char>& vchWorkData,CTemplateMintPtr& templMint,crypto::CKey& keyMint,uint256& hashBlock) override;
     /* Util */
 protected:

@@ -320,6 +320,7 @@ bool CBlockMaker::CreateProofOfWorkBlock(CBlock& block)
     CProofOfHashWorkCompact proof;
     proof.nAlgo = nAlgo;
     proof.nBits = nBits;
+    proof.destMint = destSendTo;
     proof.nNonce = 0;
     proof.Save(block.vchProof);
 

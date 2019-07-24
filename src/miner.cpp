@@ -150,21 +150,41 @@ bool CMiner::HandleEvent(CWalleveEventHttpGetRsp& event)
             else if (spResp->IsSuccessful())
             {
                 auto spResult = CastResultPtr<CGetWorkResult>(spResp->spResult);
-                cout << spResp->spResult->Method() << endl;
-                if (spResult->fResult.IsValid())
-                {
-                    if (!spResult->fResult)
-                    {
-                        {
-                            boost::unique_lock<boost::mutex> lock(mutex);
+                //cout << spResp->spResult->Method() << endl;
 
-                            workCurrent.SetNull();
-                            nMinerStatus = MINER_HOLD;
-                        }
-                        condMiner.notify_all(); 
-                    }
+
+                int nRet = 0;
+                if (!spResult->fResult.IsValid())
+                {
+                    nRet = -1;
+                    cout << "get work fResult invalid." << endl;
                 }
-                else if (spResult->work.IsValid())
+                else if (!spResult->work.IsValid())
+                {
+                    nRet = -2;
+                    cout << "get work work invalid." << endl;
+                }
+                else if (!spResult->fResult)
+                {
+                    nRet = -3;
+                    cout << "get work fResult is false." << endl;
+                }
+                else
+                {
+                    cout << "get work success." << endl;
+                }
+
+                if (nRet != 0)
+                {
+                    {
+                        boost::unique_lock<boost::mutex> lock(mutex);
+
+                        workCurrent.SetNull();
+                        nMinerStatus = MINER_HOLD;
+                    }
+                    condMiner.notify_all(); 
+                }
+                else
                 {
                     {
                         boost::unique_lock<boost::mutex> lock(mutex);
@@ -264,7 +284,10 @@ bool CMiner::GetWork()
     try
     {
     //    nNonceGetWork += 2;
-        auto spParam = MakeCGetWorkParamPtr(workCurrent.hashPrev.GetHex());
+        auto spParam = MakeCGetWorkParamPtr();
+        spParam->strSpent = strAddrSpent;
+        spParam->strPrivkey = strMintKey;
+        spParam->strPrev = workCurrent.hashPrev.GetHex();
         CRPCReqPtr spReq = MakeCRPCReqPtr(nNonceGetWork, spParam);
         return SendRequest(nNonceGetWork, spReq->Serialize());
     }

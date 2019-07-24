@@ -536,7 +536,7 @@ bool CService::ResynchronizeWalletTx()
     return pWallet->ResynchronizeWalletTx();
 }
 
-bool CService::GetWork(vector<unsigned char>& vchWorkData,uint256& hashPrev,uint32& nPrevTime,int& nAlgo,int& nBits)
+bool CService::GetWork(std::vector<unsigned char>& vchWorkData, uint256& hashPrev, uint32& nPrevTime, int& nAlgo, int& nBits, CTemplateMintPtr& templMint)
 {
     CBlock block;
     block.nType = CBlock::BLOCK_PRIMARY;
@@ -566,6 +566,7 @@ bool CService::GetWork(vector<unsigned char>& vchWorkData,uint256& hashPrev,uint
     proof.nAgreement = 0;
     proof.nAlgo = nAlgo;
     proof.nBits = nBits;
+    proof.destMint = CDestination(templMint->GetTemplateId());
     proof.nNonce = 0;
     proof.Save(block.vchProof);
     

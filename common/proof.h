@@ -8,6 +8,7 @@
 #include "uint256.h"
 #include "key.h"
 #include <walleve/stream/datastream.h>
+#include "destination.h"
 
 class CProofOfSecretShare
 {
@@ -58,17 +59,18 @@ class CProofOfHashWork : public CProofOfSecretShare
 public:
     unsigned char nAlgo;
     unsigned char nBits;
+    CDestination destMint;
     uint256 nNonce;
 protected:
     virtual void ToStream(walleve::CWalleveODataStream& os) override
     {
         CProofOfSecretShare::ToStream(os);
-        os << nAlgo << nBits << nNonce;
+        os << nAlgo << nBits << destMint.prefix << destMint.data << nNonce;
     }
     virtual void FromStream(walleve::CWalleveIDataStream& is) override
     {
         CProofOfSecretShare::FromStream(is);
-        is >> nAlgo >> nBits >> nNonce;
+        is >> nAlgo >> nBits >> destMint.prefix >> destMint.data >> nNonce;
     }
 };
 
@@ -77,19 +79,20 @@ class CProofOfHashWorkCompact
 public:
     unsigned char nAlgo;
     unsigned char nBits;
+    CDestination destMint;
     uint256 nNonce;
     
 public:
-    enum { PROOFHASHWORK_SIZE = 34 };
+    enum { PROOFHASHWORK_SIZE = 67 };
     void Save(std::vector<unsigned char>& vchProof)
     {
         unsigned char *p = &vchProof[vchProof.size() - PROOFHASHWORK_SIZE];
-        *p++ = nAlgo; *p++ = nBits; *((uint256*)p) = nNonce;
+        *p++ = nAlgo; *p++ = nBits; *p++ = destMint.prefix; *((uint256*)p) = destMint.data; p += 32; *((uint256*)p) = nNonce;
     }
     void Load(const std::vector<unsigned char>& vchProof)
     {
         const unsigned char *p = &vchProof[vchProof.size() - PROOFHASHWORK_SIZE];
-        nAlgo = *p++; nBits = *p++; nNonce = *((uint256*)p);
+        nAlgo = *p++; nBits = *p++; destMint.prefix = *p++; destMint.data = *((uint256*)p); p += 32; nNonce = *((uint256*)p);
     }
 };
 

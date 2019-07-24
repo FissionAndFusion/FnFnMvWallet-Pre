@@ -2046,36 +2046,44 @@ CRPCResultPtr CRPCModWorker::RPCDecodeTransaction(CRPCParamPtr param)
 // /* Mint */
 CRPCResultPtr CRPCModWorker::RPCGetWork(CRPCParamPtr param)
 {
+    //getwork <"spent"> <"privkey"> ("prev")
     auto spParam = CastParamPtr<CGetWorkParam>(param);
 
-    //getwork ("prev")
-    uint256 hashPrev;
-    if (!pService->GetBlockHash(pCoreProtocol->GetGenesisBlockHash(),-1,hashPrev))
+    CMvAddress addrSpent(spParam->strSpent);
+    uint256 nPriv(spParam->strPrivkey);
+    if (addrSpent.IsNull() || !addrSpent.IsPubKey())
     {
-        throw CRPCException(RPC_INTERNAL_ERROR, "The primary chain is invalid.");
+        throw CRPCException(RPC_INVALID_ADDRESS_OR_KEY,"Invalid spent address");
     }
-
-    uint256 inPrev;
-    if (inPrev.SetHex(spParam->strPrev) != spParam->strPrev.size())
+    crypto::CKey key;
+    if (!key.SetSecret(crypto::CCryptoKeyData(nPriv.begin(),nPriv.end())))
     {
-        throw CRPCException(RPC_INTERNAL_ERROR, "Invalid prev.");
+        throw CRPCException(RPC_INVALID_ADDRESS_OR_KEY,"Invalid private key");
+    }
+    crypto::CPubKey pubkeySpent;
+    if (addrSpent.GetPubKey(pubkeySpent) && pubkeySpent == key.GetPubKey())
+    {
+        throw CRPCException(RPC_INVALID_ADDRESS_OR_KEY,"Invalid spent address or private key");
+    }
+    CTemplateMintPtr ptr = CTemplateMint::CreateTemplatePtr(new CTemplateProof(key.GetPubKey(),static_cast<CDestination&>(addrSpent)));
+    if (ptr == NULL)
+    {
+        throw CRPCException(RPC_INVALID_ADDRESS_OR_KEY,"Invalid mint template");
     }
 
     auto spResult = MakeCGetWorkResultPtr();
-    if (hashPrev == uint256(spParam->strPrev))
-    {
-        spResult->fResult = true;
-        return spResult;
-    }
 
     vector<unsigned char> vchWorkData;
+    uint256 hashPrev;
     uint32 nPrevTime;
     int nAlgo,nBits;
-    if (!pService->GetWork(vchWorkData,hashPrev,nPrevTime,nAlgo,nBits))
+    if (!pService->GetWork(vchWorkData,hashPrev,nPrevTime,nAlgo,nBits,ptr))
     {
         spResult->fResult = false;
         return spResult;
     }
+
+    spResult->fResult = true;
 
     spResult->work.strPrevblockhash = hashPrev.GetHex();
     spResult->work.nPrevblocktime = nPrevTime;
